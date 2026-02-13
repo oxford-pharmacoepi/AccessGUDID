@@ -1,27 +1,31 @@
 #' Download implantable devices csv list from Access GUDID. Please see:
-#' https://accessgudid.nlm.nih.gov/resources/developers/v3/implant_list_download
-#' for more information
-#'
+ # https://accessgudid.nlm.nih.gov/download/delimited
+#' for more information.
 #' @param directory Path where to download the ZIP file
-#' @param folderName Name of the ZIP folder that will be created
+#' @param release Release version to be downloaded
 #'
-#' @return A zip folder will be created with the implantable devices csv data
+#' @return A folder with the release name will be created with the implantable devices data in txt format
 #' @export
-downloadFiles <- function(directory, folderName = "FilesAccessGUDID"){
+downloadFiles <- function(directory, release = "AccessGUDID_Delimited_Full_Release_20260202"){
   omopgenerics::assertCharacter(directory, length = 1)
-  omopgenerics::assertCharacter(folderName, length = 1)
 
-  # Create directory
-  if(dir.exists(paste0(directory,"/", folderName,".zip"))){
-    cli::cli_inform(c("i" = "{folderName} in {directory} already exists and will be overwritten."))
-    dir.create(paste0(directory,"/", folderName))
+  zip_path <- file.path(directory, paste0(release, ".zip"))
+  url <- paste0("https://accessgudid.nlm.nih.gov/release_files/download/", release, ".zip")
+
+  cli::cli_inform(message = c("i" = "Downloading implantable_list from ACCESSGUDID"))
+  if (!interactive()) {
+    res <- httr2::request(url) |>
+      httr2::req_perform(path = zip_path)
+  } else {
+    addProgressBar()
+    res <- httr2::request(url) |>
+      httr2::req_progress() |>
+      httr2::req_perform(path = zip_path)
   }
 
-  # Download SNOMED files
-  zip_path <- file.path(paste0(directory, "/", folderName,".zip"))
-  res <- httr2::request("https://accessgudid.nlm.nih.gov/api/v3/devices/implantable/download") |>
-    httr2::req_url_query() |>
-    httr2::req_perform(path = zip_path)
+  cli::cli_inform(message = c("i" = "Unzipping {release}.zip. This may take a while..."))
+  unzip(zip_path, exdir = release)
 
-  invisible(res)
+  cli::cli_inform(message = c("v" = "Unzipping completed. The previous .zip file will be removed."))
+  unlink(zip_path)
 }
