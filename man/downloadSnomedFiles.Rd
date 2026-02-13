@@ -7,19 +7,18 @@ Please see:
 https://accessgudid.nlm.nih.gov/resources/developers/v3/implant_list_download
 for more information}
 \usage{
-downloadSnomedFiles(api_key, directory, folderName = "SnomedFilesAccessGUDID")
+downloadSnomedFiles(apiKey, directory, release = "v3")
 }
 \arguments{
-\item{api_key}{Personal api key. Please see for more information:
+\item{apiKey}{Personal api key. Please see for more information:
 https://accessgudid.nlm.nih.gov/resources/developers/v3/device_snomed_api}
 
 \item{directory}{Path where to download the ZIP file}
 
-\item{folderName}{Name of the ZIP folder that will be created}
+\item{release}{Release version}
 }
 \value{
-A zip folder will be created with the implantable devices csv and its
-correspondent SNOMED code.
+The directory where the folder with the name "implantable_data" was created.
 }
 \description{
 Download implantable devices csv list and its corresponding SNOMED code from Access GUDID.

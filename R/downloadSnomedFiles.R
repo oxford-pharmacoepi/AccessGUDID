@@ -3,40 +3,64 @@
 #' https://accessgudid.nlm.nih.gov/resources/developers/v3/implant_list_download
 #' for more information
 #'
-#' @param api_key Personal api key. Please see for more information:
+#' @param apiKey Personal api key. Please see for more information:
 #' https://accessgudid.nlm.nih.gov/resources/developers/v3/device_snomed_api
 #' @param directory Path where to download the ZIP file
-#' @param folderName Name of the ZIP folder that will be created
+#' @param release Release version
 #'
-#' @return A zip folder will be created with the implantable devices csv and its
-#' correspondent SNOMED code.
+#' @return The directory where the folder with the name "implantable_data" was created.
 #' @export
-downloadSnomedFiles <- function(api_key, directory, folderName = "SnomedFilesAccessGUDID"){
+downloadSnomedFiles <- function(apiKey, directory, release = "v3"){
   omopgenerics::assertCharacter(directory, length = 1)
-  omopgenerics::assertCharacter(api_key, length = 1)
-  omopgenerics::assertCharacter(folderName, length = 1)
+  omopgenerics::assertCharacter(apiKey, length = 1)
+  omopgenerics::assertCharacter(release, length = 1)
 
   # Create directory
-  if(dir.exists(paste0(directory,"/", folderName,".zip"))){
+  folderName <- "implantable_list"
+
+  if( dir.exists(paste0(directory,"/", folderName)) ){
     cli::cli_inform(c("i" = "{folderName} in {directory} already exists and will be overwritten."))
-    dir.create(paste0(directory,"/", folderName))
   }
 
-  st <- getTicketInternal(api_key)
+  cli::cli_inform(message = c("i" = "Getting single use ticket"))
+  st <- getTicketInternal(apiKey)
 
   # Download SNOMED files
+  cli::cli_inform(message = c("i" = "Downloading implantable_list from ACCESSGUDID"))
   zip_path <- file.path(paste0(directory, "/", folderName,".zip"))
-  res <- httr2::request("https://accessgudid.nlm.nih.gov/api/v3/devices/implantable/download") |>
-    httr2::req_url_query(ticket = st) |>
-    httr2::req_perform(path =   zip_path)
+  url <- paste0("https://accessgudid.nlm.nih.gov/api/", release,"/devices/implantable/download")
 
-  invisible(res)
+  if (!interactive()) {
+    res <- httr2::request(url) |>
+      httr2::req_url_query(ticket = st) |>
+      httr2::req_perform(path = zip_path)
+  } else {
+    addProgressBar()
+
+    res <- httr2::request(url) |>
+      httr2::req_url_query(ticket = st) |>
+      httr2::req_progress() |>
+      httr2::req_perform(path = zip_path)
+  }
+
+  cli::cli_inform(message = c("i" = "Unzipping {folderName}. This may take a while..."))
+  unzip(zip_path, exdir = folderName)
+
+  cli::cli_inform(message = c("v" = "Unzipping completed. The previous .zip file will be removed."))
+  unlink(zip_path)
+
+  return(gsub(".zip","", zip_path))
 }
 
-getTicketInternal <- function(api_key){
+addProgressBar <- function(){
+  old <- getOption("cli.progress_show_after")
+  options(cli.progress_show_after = 0)
+  on.exit(options(cli.progress_show_after = old), add = TRUE)
+}
+getTicketInternal <- function(apiKey){
   # Get ticket
   resp_tgt <- httr2::request("https://utslogin.nlm.nih.gov/cas/v1/api-key") |>
-    httr2::req_body_form(apikey = api_key) |>
+    httr2::req_body_form(apikey = apiKey) |>
     httr2::req_perform()
 
   doc <- resp_tgt |>

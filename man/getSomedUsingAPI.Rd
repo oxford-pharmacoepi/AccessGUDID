@@ -2,19 +2,20 @@
 % Please edit documentation in R/getSnomedUsingAPI.R
 \name{getSomedUsingAPI}
 \alias{getSomedUsingAPI}
-\title{Get SNOMED code from a Device Identifier via ACCESGUDID}
+\title{Get SNOMED code from a Device Identifier via an API from ACCESGUDID}
 \usage{
-getSomedUsingAPI(api_key, device_di)
+getSomedUsingAPI(apiKey, deviceDI)
 }
 \arguments{
-\item{api_key}{Personal api key. Please see for more information: https://accessgudid.nlm.nih.gov/resources/developers/v3/device_snomed_api}
+\item{apiKey}{Personal api key. Please see for more information: https://accessgudid.nlm.nih.gov/resources/developers/v3/device_snomed_api}
 
-\item{device_di}{Device Identifier}
+\item{deviceDI}{Device Identifier. Only one DI each time is allowed. If you need to
+map a long list of DI, please see \code{getSnomed()}.}
 }
 \value{
 A table with the SNOMED code, the device brand, the description,
 the catalog number, and the company name
 }
 \description{
-Get SNOMED code from a Device Identifier via ACCESGUDID
+Get SNOMED code from a Device Identifier via an API from ACCESGUDID
 }

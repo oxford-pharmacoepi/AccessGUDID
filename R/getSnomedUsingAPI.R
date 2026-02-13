@@ -1,32 +1,33 @@
-#' Get SNOMED code from a Device Identifier via ACCESGUDID
+#' Get SNOMED code from a Device Identifier via an API from ACCESGUDID
 #'
-#' @param api_key Personal api key. Please see for more information: https://accessgudid.nlm.nih.gov/resources/developers/v3/device_snomed_api
-#' @param device_di Device Identifier
+#' @param apiKey Personal api key. Please see for more information: https://accessgudid.nlm.nih.gov/resources/developers/v3/device_snomed_api
+#' @param deviceDI Device Identifier. Only one DI each time is allowed. If you need to
+#' map a long list of DI, please see `getSnomed()`.
 #'
 #' @return A table with the SNOMED code, the device brand, the description,
 #' the catalog number, and the company name
 #' @export
-getSomedUsingAPI <- function(api_key, device_di){
+getSomedUsingAPI <- function(apiKey, deviceDI){
 
-  omopgenerics::assertCharacter(api_key, length = 1)
-  omopgenerics::assertCharacter(device_di, length = 1)
+  omopgenerics::assertCharacter(apiKey, length = 1)
+  omopgenerics::assertCharacter(deviceDI, length = 1)
 
-  st <- getTicketInternal(api_key)
+  st <- getTicketInternal(apiKey)
 
   # Get SNOMED code
   res <- httr2::request("https://accessgudid.nlm.nih.gov/api/v3/devices/snomed") |>
-    httr2::req_url_query(ticket = st, di = device_di) |>
+    httr2::req_url_query(ticket = st, di = deviceDI) |>
     httr2::req_perform() |>
     httr2::resp_body_json()
 
   # Get general information
   tab <- httr2::request("https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json") |>
-    httr2::req_url_query(di = device_di) |>
+    httr2::req_url_query(di = deviceDI) |>
     httr2::req_perform() |>
     httr2::resp_body_json()
 
   result <- dplyr::tibble(
-    "udi" = device_di,
+    "udi" = deviceDI,
     "device_brand" = tab$gudid$device$brandName,
     "description" = tab$gudid$device$deviceDescription,
     "catalog_number" = tab$gudid$device$catalogNumber,
