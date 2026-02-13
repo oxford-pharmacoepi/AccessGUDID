@@ -6,33 +6,12 @@
 #' @return A table with the SNOMED code, the device brand, the description,
 #' the catalog number, and the company name
 #' @export
-
 getSomedUsingAPI <- function(api_key, device_di){
 
   omopgenerics::assertCharacter(api_key, length = 1)
   omopgenerics::assertCharacter(device_di, length = 1)
 
-  resp_tgt <- httr2::request("https://utslogin.nlm.nih.gov/cas/v1/api-key") |>
-    httr2::req_body_form(apikey = api_key) |>
-    httr2::req_perform()
-
-  doc <- resp_tgt |>
-    httr2::resp_body_string() |>
-    xml2::read_html()
-
-  form_node <- xml2::xml_find_first(doc, ".//form")
-  action_url <- xml2::xml_attr(form_node, "action")
-
-  tgt <- sub(".*/(TGT-[A-Za-z0-9-]+)$", "\\1", action_url)
-  service_url <- "http://umlsks.nlm.nih.gov"
-
-  st_res <- httr2::request(paste0("https://utslogin.nlm.nih.gov/cas/v1/tickets/", tgt)) |>
-    httr2::req_body_form(service = service_url) |>
-    httr2::req_perform()
-
-  st <- st_res |>
-    httr2::resp_body_string() |>
-    trimws()
+  st <- getTicketInternal(api_key)
 
   # Get SNOMED code
   res <- httr2::request("https://accessgudid.nlm.nih.gov/api/v3/devices/snomed") |>
