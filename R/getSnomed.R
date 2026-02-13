@@ -28,7 +28,7 @@ getSnomed <- function(snomedFilesDirectory, filesDirectory, deviceDI){
                    to the folder where the files are (i.e., 'home/AccessGUDID_Project/AccessGUDID_Delimited_Full_Release_20260202')")
   }
 
-  # Read snomed csv files
+  # Read SNOMED csv files
   snomed_csv <- list.files(snomedFilesDirectory, pattern = ".csv", full.names = TRUE)
   snomed_tab <- readr::read_delim(snomed_csv, progress = TRUE, delim = "|") |>
     dplyr::select("device_di" = "DEVICE_ID",

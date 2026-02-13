@@ -3,21 +3,24 @@
 \name{downloadFiles}
 \alias{downloadFiles}
 \title{Download implantable devices csv list from Access GUDID. Please see:
-https://accessgudid.nlm.nih.gov/resources/developers/v3/implant_list_download
-for more information}
+https://accessgudid.nlm.nih.gov/download/delimited
+for more information.}
 \usage{
-downloadFiles(directory, folderName = "FilesAccessGUDID")
+downloadFiles(
+  directory,
+  release = "AccessGUDID_Delimited_Full_Release_20260202"
+)
 }
 \arguments{
 \item{directory}{Path where to download the ZIP file}
 
-\item{folderName}{Name of the ZIP folder that will be created}
+\item{release}{Release version to be downloaded}
 }
 \value{
-A zip folder will be created with the implantable devices csv data
+A folder with the release name will be created with the implantable devices data in txt format
 }
 \description{
 Download implantable devices csv list from Access GUDID. Please see:
-https://accessgudid.nlm.nih.gov/resources/developers/v3/implant_list_download
-for more information
+https://accessgudid.nlm.nih.gov/download/delimited
+for more information.
 }

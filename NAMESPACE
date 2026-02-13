@@ -3,6 +3,7 @@
 export("%>%")
 export(downloadFiles)
 export(downloadSnomedFiles)
+export(getSnomed)
 export(getSomedUsingAPI)
 importFrom(magrittr,"%>%")
 importFrom(rlang,.data)

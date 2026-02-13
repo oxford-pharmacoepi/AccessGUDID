@@ -8,8 +8,7 @@
 #' @param directory Path where to download the ZIP file
 #' @param release Release version
 #'
-#' @return A folder with the name "implantable_data" will be created with the implantable devices csv and its
-#' correspondent SNOMED code.
+#' @return The directory where the folder with the name "implantable_data" was created.
 #' @export
 downloadSnomedFiles <- function(apiKey, directory, release = "v3"){
   omopgenerics::assertCharacter(directory, length = 1)
@@ -49,6 +48,8 @@ downloadSnomedFiles <- function(apiKey, directory, release = "v3"){
 
   cli::cli_inform(message = c("v" = "Unzipping completed. The previous .zip file will be removed."))
   unlink(zip_path)
+
+  return(gsub(".zip","", zip_path))
 }
 
 addProgressBar <- function(){
