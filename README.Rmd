@@ -26,17 +26,39 @@ install.packages("remotes")
 remotes::install_github("oxford-pharmacoepi/AccessGUDID")
 ```
 
+To access to the device UDI - SNOMED mapping, you'll need a UMLS Terminology Services API key, which can be obtained
+following the instructions in in [this link](https://documentation.uts.nlm.nih.gov/rest/authentication.html?_gl=1*ozdtii*_ga*MzE4NTczNTgxLjE3MDA2NjYyNTQ.*_ga_7147EPK006*czE3NzEwMDI0NTUkbzE4JGcxJHQxNzcxMDAyNTQyJGozNSRsMCRoMA..*_ga_P1FPTH9PL4*czE3NzEwMDI0NTUkbzE4JGcxJHQxNzcxMDAyNTQyJGozNSRsMCRoMA..)
+
+Please, take into consideration that it may take ~3 days to get an approved UMLS license.
+
 ## Brief description
 
 ## Single UDI mapping - Map via AccessGUDID API
 
+```{r, echo=TRUE, eval= FALSE}
+library(AccessGUDID)
+library(here)
+api_key <- "asdfghjkl"
+device_di <- "05415067030986"
+
+result <- getSnomedUsingAPI(apiKey = api_key,
+                            deviceDI = device_di)
+
+result
+```
+
+```{r, echo=FALSE, eval=TRUE}
+print(readr::read_csv(c("internalData/vignette_api.csv")))
+```
+
+In some cases, API connexion may fail and 
 ## Multiple UDI mapping - Download AccesGUDID files
 
 First, download the necessary files to do the mapping. These includes:
 
 1.   Devices UDI and their corresponding SNOMED code. Files are downloaded from: https://accessgudid.nlm.nih.gov/resources/developers/v3/implant_list_download. To 
 be able to download these files, you'll need a free UMLS licence account. If you don't have
-one, follow the instructions in [this](https://documentation.uts.nlm.nih.gov/rest/authentication.html?_gl=1*ozdtii*_ga*MzE4NTczNTgxLjE3MDA2NjYyNTQ.*_ga_7147EPK006*czE3NzEwMDI0NTUkbzE4JGcxJHQxNzcxMDAyNTQyJGozNSRsMCRoMA..*_ga_P1FPTH9PL4*czE3NzEwMDI0NTUkbzE4JGcxJHQxNzcxMDAyNTQyJGozNSRsMCRoMA..) link.
+one, follow the instructions in [this link](https://documentation.uts.nlm.nih.gov/rest/authentication.html?_gl=1*ozdtii*_ga*MzE4NTczNTgxLjE3MDA2NjYyNTQ.*_ga_7147EPK006*czE3NzEwMDI0NTUkbzE4JGcxJHQxNzcxMDAyNTQyJGozNSRsMCRoMA..*_ga_P1FPTH9PL4*czE3NzEwMDI0NTUkbzE4JGcxJHQxNzcxMDAyNTQyJGozNSRsMCRoMA..).
 
 2.   Devices description, brand, company, and catalogue number. Files are downloaded from:
 https://accessgudid.nlm.nih.gov/download/delimited
@@ -52,8 +74,8 @@ dir_snomed <- downloadSnomedFiles(apiKey = api_key,
 dir_files <- downloadFiles(directory = here())
 ```
 
-We can now then use `getSnomed()` function to extract the SNOMED code for a list of UDIs
-
+### Mapping based on a list of Device Identifiers
+We can now then use `getSnomed()` function to extract the SNOMED code for a list of Device Identifiers
 
 ```{r, echo=TRUE, eval= FALSE}
 map <- getSnomed(snomedFilesDirectory = dir_snomed,
@@ -66,3 +88,21 @@ map
 ```{r, echo=FALSE, eval=TRUE}
 print(readr::read_csv(c("internalData/vignette.csv")))
 ```
+
+### Mapping based on a list of Catalogue Numbers
+We can also use `getSnomed()` function to extract the SNOMED code for a list of Catalogue Numbers
+
+```{r, echo=TRUE, eval= FALSE}
+map <- getSnomed(snomedFilesDirectory = dir_snomed,
+                 filesDirectory = dir_files,
+                 catalogueNumber = c("9-PDAP-03-04-L", "9-AVP2-006"))
+
+map
+```
+
+```{r, echo=FALSE, eval=TRUE}
+print(readr::read_csv(c("internalData/vignette.csv")))
+```
+
+Please, note that only a list of Catalogue Numbers or a list of Device Identifiers can be provided at a time. If you wish to obtain the mapping
+for a group of Device Identifiers and a group of Catalogue Numbers, you will need to run the function separately for each list.

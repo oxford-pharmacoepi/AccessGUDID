@@ -4,7 +4,12 @@
 \alias{getSnomed}
 \title{Get SNOMED code from a Device Identifier via download files from ACCESGUDID}
 \usage{
-getSnomed(snomedFilesDirectory, filesDirectory, deviceDI)
+getSnomed(
+  snomedFilesDirectory,
+  filesDirectory,
+  deviceDI = NULL,
+  catalogueNumber = NULL
+)
 }
 \arguments{
 \item{snomedFilesDirectory}{Directory of the zip folder containing the SNOMED ACCESS GUDID files information.
@@ -15,7 +20,9 @@ files yet.}
 Please refer to function \code{downloadFiles()} if you have not download the
 files yet.}
 
-\item{deviceDI}{Device Identifiers to be searched for}
+\item{deviceDI}{Device Identifiers to be searched for. If deviceDI is provided, catalogueNumber must be NULL.}
+
+\item{catalogueNumber}{Catalogue Numbers to be searched for. If catalogueNumber is provided, deviceDI must be NULL.}
 }
 \value{
 A table with the SNOMED code, the device brand, the description,
