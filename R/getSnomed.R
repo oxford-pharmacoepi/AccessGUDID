@@ -6,18 +6,27 @@
 #' @param filesDirectory Directory of the zip folder containing the ACCESS GUDID files information.
 #' Please refer to function `downloadFiles()` if you have not download the
 #' files yet.
-#' @param deviceDI Device Identifiers to be searched for
+#' @param deviceDI Device Identifiers to be searched for. If deviceDI is provided, catalogueNumber must be NULL.
+#' @param catalogueNumber Catalogue Numbers to be searched for. If catalogueNumber is provided, deviceDI must be NULL.
 #'
 #' @return A table with the SNOMED code, the device brand, the description,
 #' the catalog number, and the company name
 #' @export
-getSnomed <- function(snomedFilesDirectory, filesDirectory, deviceDI){
+getSnomed <- function(snomedFilesDirectory, filesDirectory, deviceDI = NULL, catalogueNumber = NULL){
 
   omopgenerics::assertCharacter(snomedFilesDirectory, length = 1)
   omopgenerics::assertCharacter(filesDirectory, length = 1)
-  omopgenerics::assertCharacter(deviceDI)
+  omopgenerics::assertCharacter(deviceDI, null = TRUE)
+  omopgenerics::assertCharacter(catalogueNumber, null = TRUE)
 
-  device_di <- dplyr::tibble("device_di" = deviceDI)
+  if(is.null(deviceDI) & is.null(catalogueNumber)){
+    cli::cli_abort("Please provide either the device identifiers (deviceDI) or the catalogue numbers to look for.")
+  }
+  if(!is.null(deviceDI) & !is.null(catalogueNumber)){
+    cli::cli_abort("Please provide ONLY the device identifiers (deviceDI) or the catalogue numbers, not both. If
+                   you would like to look for some device identifiers and some catalogue numbers, please run the
+                   function in two different instances.")
+  }
 
   if(!file.exists(snomedFilesDirectory)){
     cli::cli_abort(message = "{snomedFilesDirectory} does not exist. Please ensure it directs
@@ -26,6 +35,17 @@ getSnomed <- function(snomedFilesDirectory, filesDirectory, deviceDI){
   if(!file.exists(filesDirectory)){
     cli::cli_abort(message = "{filesDirectory} does not exist. Please ensure it directs
                    to the folder where the files are (i.e., 'home/AccessGUDID_Project/AccessGUDID_Delimited_Full_Release_20260202')")
+  }
+
+  if(!is.null(deviceDI)){
+    cli::cli_inform(c("i" = "Looking for the SNOMED codes corresponding to the specified device identifiers..."))
+    table  <- dplyr::tibble("device_di" = deviceDI)
+    var <- "device_di"
+  }
+  if(!is.null(catalogueNumber)){
+    cli::cli_inform(c("i" = "Looking for the SNOMED codes corresponding to the specified catalogue numbers..."))
+    table  <- dplyr::tibble("catalogue_number" = catalogueNumber)
+    var <- "catalogue_number"
   }
 
   # Read SNOMED csv files
@@ -47,12 +67,12 @@ getSnomed <- function(snomedFilesDirectory, filesDirectory, deviceDI){
                   "catalogue_number" = "catalogNumber",
                   "device_description" = "deviceDescription")
 
-  result <- device_di |>
+  result <- table |>
     dplyr::left_join(
-      snomed_tab, by = "device_di"
+      device_tab, by = var
     ) |>
     dplyr::left_join(
-      device_tab, by = "device_di"
+      snomed_tab, by = "device_di"
     ) |>
     dplyr::select("device_di", "brand_name", "device_description", "company_name", "catalogue_number", "snomed_code", "snomed_name") |>
     dplyr::mutate(dplyr::across(c("brand_name", "company_name", "catalogue_number"), ~dplyr::coalesce(., "-"))) |>
@@ -60,6 +80,6 @@ getSnomed <- function(snomedFilesDirectory, filesDirectory, deviceDI){
     dplyr::mutate("snomed_name" = dplyr::coalesce(.data$snomed_name, "No matching concept")) |>
     dplyr::mutate("device_description" = dplyr::coalesce(.data$device_description, "No device identified"))
 
-  cli::cli_inform(message = c("v" = "Device DI mapped"))
+  cli::cli_inform(message = c("v" = "Device mapped"))
   return(result)
 }
