@@ -42,7 +42,9 @@ result
     #> 1 05415067030986 Amplatzer Pic… Duct Occluder      ST. JUDE ME… 9-PDAP-03-04-L  
     #> # ℹ 2 more variables: snomed_concept_code <dbl>, snomed_name <chr>
 
-In some cases, API connexion may fail and \## Multiple UDI mapping -
+In some cases, API connexion may fail and you may obtain that no SNOMED code was found for a specific device. That is the reason why, if you require the mapping of multiple devices, we recommend using the following option:
+
+## Multiple UDI mapping -
 Download AccesGUDID files
 
 First, download the necessary files to do the mapping. These includes:
