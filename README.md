@@ -44,8 +44,7 @@ result
 
 In some cases, API connexion may fail and you may obtain that no SNOMED code was found for a specific device. That is the reason why, if you require the mapping of multiple devices, we recommend using the following option:
 
-## Multiple UDI mapping -
-Download AccesGUDID files
+## Multiple UDI mapping - Download AccesGUDID files
 
 First, download the necessary files to do the mapping. These includes:
 
